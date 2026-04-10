@@ -344,35 +344,115 @@ const ResultsDisplay = ({ state, compact }) => {
   );
 };
 
-// ─── ROLE SELECTOR ────────────────────────────────────────────────────────────
-const RoleSelector = ({ onSelect }) => (
-  <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--black)" }}>
-    <div style={{ borderBottom: "1px solid var(--border)", padding: "1.1rem 2rem", display: "flex", alignItems: "center", gap: ".75rem" }}>
-      <div style={{ width: 7, height: 7, background: "var(--yellow)" }} />
-      <span className="bc" style={{ fontSize: "1rem", fontWeight: 900, letterSpacing: ".06em", textTransform: "uppercase" }}>Inteligencia Colectiva</span>
-    </div>
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem" }}>
-      <div style={{ marginBottom: "3rem", textAlign: "center" }}>
-        <div style={{ fontSize: ".65rem", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--yellow)", marginBottom: "1rem" }}>Plataforma de feedback formativo</div>
-        <h1 className="bc fu" style={{ fontSize: "clamp(3rem,8vw,6rem)", fontWeight: 900, textTransform: "uppercase", lineHeight: .88, letterSpacing: "-.02em" }}>
-          ¿Quién<br /><span style={{ color: "var(--yellow)" }}>eres?</span>
-        </h1>
+// ─── ROLE SELECTOR con password para ponente ──────────────────────────────────
+// Reemplaza la función RoleSelector completa en src/App.jsx
+
+const RoleSelector = ({ onSelect }) => {
+  const [showPwdModal, setShowPwdModal] = useState(false);
+  const [pwd, setPwd] = useState("");
+  const [error, setError] = useState(false);
+  const [checking, setChecking] = useState(false);
+
+  const handlePresenter = () => {
+    setShowPwdModal(true);
+    setPwd("");
+    setError(false);
+  };
+
+  const checkPassword = async () => {
+    setChecking(true);
+    // Load the stored password from the most recent session
+    try {
+      const sessions = await listSessions();
+      const presenterPwd = sessions[0]?.presenterPassword || "1234";
+      if (pwd === presenterPwd) {
+        setShowPwdModal(false);
+        onSelect("presenter");
+      } else {
+        setError(true);
+        setPwd("");
+      }
+    } catch {
+      // Fallback default password
+      if (pwd === "1234") {
+        setShowPwdModal(false);
+        onSelect("presenter");
+      } else {
+        setError(true);
+        setPwd("");
+      }
+    }
+    setChecking(false);
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--black)" }}>
+      <div style={{ borderBottom: "1px solid var(--border)", padding: "1.1rem 2rem", display: "flex", alignItems: "center", gap: ".75rem" }}>
+        <div style={{ width: 7, height: 7, background: "var(--yellow)" }} />
+        <span className="bc" style={{ fontSize: "1rem", fontWeight: 900, letterSpacing: ".06em", textTransform: "uppercase" }}>Inteligencia Colectiva</span>
       </div>
-      <div className="fu2" style={{ display: "flex", gap: "1px", background: "var(--border)", width: "100%", maxWidth: 580 }}>
-        {[{ role: "participant", label: "Participante", sub: "Accede a las preguntas" }, { role: "presenter", label: "Ponente", sub: "Controla la sesión" }, { role: "client", label: "Cliente", sub: "Solo lectura" }].map(({ role, label, sub }) => (
-          <button key={role} onClick={() => onSelect(role)}
-            style={{ flex: 1, background: "var(--dark)", border: "none", padding: "2rem 1rem", textAlign: "center", color: "var(--white)" }}
-            onMouseEnter={e => { e.currentTarget.style.background = "var(--yellow)"; e.currentTarget.style.color = "var(--black)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "var(--dark)"; e.currentTarget.style.color = "var(--white)"; }}>
-            <div className="bc" style={{ fontSize: "1.4rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: ".03em", marginBottom: ".2rem" }}>{label}</div>
-            <div style={{ fontSize: ".7rem", opacity: .55 }}>{sub}</div>
-          </button>
-        ))}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem" }}>
+        <div style={{ marginBottom: "3rem", textAlign: "center" }}>
+          <div style={{ fontSize: ".65rem", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--yellow)", marginBottom: "1rem" }}>Plataforma de feedback formativo</div>
+          <h1 className="bc fu" style={{ fontSize: "clamp(3rem,8vw,6rem)", fontWeight: 900, textTransform: "uppercase", lineHeight: .88, letterSpacing: "-.02em" }}>
+            ¿Quién<br /><span style={{ color: "var(--yellow)" }}>eres?</span>
+          </h1>
+        </div>
+        <div className="fu2" style={{ display: "flex", gap: "1px", background: "var(--border)", width: "100%", maxWidth: 580 }}>
+          {[
+            { role: "participant", label: "Participante", sub: "Accede a las preguntas", action: () => onSelect("participant") },
+            { role: "presenter",   label: "Ponente",      sub: "Controla la sesión",    action: handlePresenter },
+            { role: "client",      label: "Cliente",      sub: "Solo lectura",           action: () => onSelect("client") },
+          ].map(({ role, label, sub, action }) => (
+            <button key={role} onClick={action}
+              style={{ flex: 1, background: "var(--dark)", border: "none", padding: "2rem 1rem", textAlign: "center", color: "var(--white)" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "var(--yellow)"; e.currentTarget.style.color = "var(--black)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "var(--dark)"; e.currentTarget.style.color = "var(--white)"; }}>
+              <div className="bc" style={{ fontSize: "1.4rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: ".03em", marginBottom: ".2rem" }}>{label}</div>
+              <div style={{ fontSize: ".7rem", opacity: .55 }}>{sub}</div>
+            </button>
+          ))}
+        </div>
       </div>
+      <div className="tbar"><span className="ti">FEEDBACK EN TIEMPO REAL &nbsp;·&nbsp; ANÁLISIS CON IA &nbsp;·&nbsp; REFLEXIÓN COLECTIVA &nbsp;·&nbsp; FEEDBACK EN TIEMPO REAL &nbsp;·&nbsp; ANÁLISIS CON IA &nbsp;·&nbsp;</span></div>
+
+      {/* Password modal */}
+      {showPwdModal && (
+        <div className="overlay" onClick={e => { if (e.target === e.currentTarget) setShowPwdModal(false); }}>
+          <div className="modal" style={{ maxWidth: 380 }}>
+            <div className="bc" style={{ fontSize: "1.5rem", fontWeight: 900, textTransform: "uppercase", marginBottom: ".5rem" }}>Acceso ponente</div>
+            <p style={{ fontSize: ".78rem", color: "var(--gray)", marginBottom: "1.5rem" }}>Introduce la contraseña para acceder al panel de control.</p>
+            <div style={{ marginBottom: "1rem" }}>
+              <label className="fl">Contraseña</label>
+              <input
+                type="password"
+                value={pwd}
+                onChange={e => { setPwd(e.target.value); setError(false); }}
+                onKeyDown={e => { if (e.key === "Enter") checkPassword(); }}
+                className="fi"
+                placeholder="••••••••"
+                autoFocus
+                style={{ borderColor: error ? "var(--red)" : undefined }}
+              />
+              {error && (
+                <div style={{ fontSize: ".72rem", fontWeight: 700, color: "var(--red)", marginTop: ".4rem", letterSpacing: ".04em" }}>
+                  Contraseña incorrecta
+                </div>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: ".5rem" }}>
+              <button className="btn by" onClick={checkPassword} disabled={checking || !pwd.trim()}>
+                {checking ? <><Spinner size={14} /> Verificando…</> : "Entrar →"}
+              </button>
+              <button className="btn bg" onClick={() => setShowPwdModal(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-    <div className="tbar"><span className="ti">FEEDBACK EN TIEMPO REAL &nbsp;·&nbsp; ANÁLISIS CON IA &nbsp;·&nbsp; REFLEXIÓN COLECTIVA &nbsp;·&nbsp; FEEDBACK EN TIEMPO REAL &nbsp;·&nbsp; ANÁLISIS CON IA &nbsp;·&nbsp;</span></div>
-  </div>
-);
+  );
+};
+
 
 // ─── WAITING SCREEN ───────────────────────────────────────────────────────────
 const WaitingScreen = ({ state }) => {
