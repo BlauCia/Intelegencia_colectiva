@@ -128,21 +128,20 @@ const calcWordFreq = (responses) => {
 const claude = async (system, user, onChunk) => {
   try {
     const res = await fetch("/api/claude", {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1500, stream:false, system, messages:[{role:"user",content:user}] })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1500,
+        stream: false,
+        system,
+        messages: [{ role: "user", content: user }]
+      }),
     });
     if (!res.ok) { onChunk(`[Error API: ${res.status}]`); return; }
-    const reader = res.body.getReader(); const dec = new TextDecoder(); let buf="";
-    while(true) {
-      const {done,value} = await reader.read(); if(done) break;
-      buf += dec.decode(value,{stream:true});
-      const lines = buf.split("\n"); buf = lines.pop();
-      for(const line of lines) {
-        if(!line.startsWith("data: ")) continue;
-        const d = line.slice(6); if(d==="[DONE]") continue;
-        try { const p=JSON.parse(d); if(p.type==="content_block_delta"&&p.delta?.text) onChunk(p.delta.text); } catch{}
-      }
-    }
+    const data = await res.json();
+    const text = data.content?.[0]?.text || "";
+    onChunk(text);
   } catch(e) { onChunk(`[Error: ${e.message}]`); }
 };
 
