@@ -839,11 +839,15 @@ const SessionsTab = ({ state, update, sessionId, onSessionChange }) => {
   );
 };
 
-// ─── CONFIG TAB ───────────────────────────────────────────────────────────────
+// ─── CONFIG TAB con campo de contraseña ──────────────────────────────────────
+// Reemplaza la función ConfigTab completa en src/App.jsx
+
 const ConfigTab = ({ state, update }) => {
   const [cfgName, setCfgName] = useState(state.sessionName || "");
   const [cfgTitle, setCfgTitle] = useState(state.branding?.sessionTitle || "Inteligencia Colectiva");
   const [cfgAnon, setCfgAnon] = useState(state.anonymityMessage || "");
+  const [cfgPwd, setCfgPwd] = useState(state.presenterPassword || "1234");
+  const [showPwd, setShowPwd] = useState(false);
   const [savedCfg, setSavedCfg] = useState(false);
 
   const ai = state.aiConfig || makeDefault().aiConfig;
@@ -854,17 +858,24 @@ const ConfigTab = ({ state, update }) => {
   const [savedAI, setSavedAI] = useState(false);
 
   const saveCfg = async () => {
-    await update({ sessionName: cfgName, branding: { ...state.branding, sessionTitle: cfgTitle }, anonymityMessage: cfgAnon });
-    setSavedCfg(true); setTimeout(() => setSavedCfg(false), 2000);
+    await update({
+      sessionName: cfgName,
+      branding: { ...state.branding, sessionTitle: cfgTitle },
+      anonymityMessage: cfgAnon,
+      presenterPassword: cfgPwd,
+    });
+    setSavedCfg(true);
+    setTimeout(() => setSavedCfg(false), 2000);
   };
 
   const saveAI = async () => {
     await update({ aiConfig: { provider, claudeKey, openaiKey, geminiKey } });
-    setSavedAI(true); setTimeout(() => setSavedAI(false), 2000);
+    setSavedAI(true);
+    setTimeout(() => setSavedAI(false), 2000);
   };
 
   const providers = [
-    { id: "claude", label: "Claude", sub: "Anthropic" },
+    { id: "claude", label: "Claude",  sub: "Anthropic" },
     { id: "openai", label: "GPT-4o", sub: "OpenAI" },
     { id: "gemini", label: "Gemini", sub: "Google" },
   ];
@@ -876,22 +887,46 @@ const ConfigTab = ({ state, update }) => {
       <div className="card">
         <div className="sl">Configuración general</div>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+
           <div>
             <label className="fl">Nombre de sesión</label>
             <input value={cfgName} onChange={e => setCfgName(e.target.value)} className="fi" />
           </div>
+
           <div>
             <label className="fl">Título de la plataforma</label>
             <input value={cfgTitle} onChange={e => setCfgTitle(e.target.value)} className="fi" />
           </div>
+
           <div>
             <label className="fl">Mensaje de anonimato</label>
             <input value={cfgAnon} onChange={e => setCfgAnon(e.target.value)} className="fi" />
           </div>
+
+          <div>
+            <label className="fl">Contraseña de ponente</label>
+            <div className="key-input-wrap">
+              <input
+                type={showPwd ? "text" : "password"}
+                value={cfgPwd}
+                onChange={e => setCfgPwd(e.target.value)}
+                className="fi"
+                placeholder="••••••••"
+              />
+              <button className="key-reveal" onClick={() => setShowPwd(s => !s)}>
+                {showPwd ? "Ocultar" : "Ver"}
+              </button>
+            </div>
+            <div style={{ fontSize: ".65rem", color: "var(--gray)", marginTop: ".35rem", lineHeight: 1.5 }}>
+              Contraseña actual: <strong style={{ color: "var(--yellow)" }}>{showPwd ? cfgPwd : "••••••••"}</strong>
+              &nbsp;·&nbsp;Por defecto: <code style={{ color: "var(--gray)" }}>1234</code>
+            </div>
+          </div>
+
           <div>
             <label className="fl">Tiempo por pregunta</label>
             <div style={{ display: "flex", gap: ".4rem", flexWrap: "wrap" }}>
-              {[[60, "1 min"], [120, "2 min"], [180, "3 min"], [300, "5 min"], [420, "7 min"], [600, "10 min"]].map(([secs, label]) => (
+              {[[60,"1 min"],[120,"2 min"],[180,"3 min"],[300,"5 min"],[420,"7 min"],[600,"10 min"]].map(([secs, label]) => (
                 <button key={secs} onClick={() => update({ timerDuration: secs })}
                   style={{ padding: ".4rem .9rem", border: `1px solid ${state.timerDuration === secs ? "var(--yellow)" : "var(--border2)"}`, background: state.timerDuration === secs ? "var(--yd)" : "transparent", color: state.timerDuration === secs ? "var(--yellow)" : "var(--gray)", fontSize: ".75rem", fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase" }}>
                   {label}
@@ -899,6 +934,7 @@ const ConfigTab = ({ state, update }) => {
               ))}
             </div>
           </div>
+
         </div>
         <div style={{ marginTop: "1.25rem", display: "flex", alignItems: "center", gap: "1rem" }}>
           <button className="btn by bsm" onClick={saveCfg}>Guardar</button>
@@ -942,9 +978,11 @@ const ConfigTab = ({ state, update }) => {
           <SavedBadge show={savedAI} />
         </div>
       </div>
+
     </div>
   );
 };
+
 
 // ─── PRESENTER DASHBOARD ─────────────────────────────────────────────────────
 const PresenterDashboard = ({ initialSessionId }) => {
