@@ -398,7 +398,7 @@ const WaitingScreen = ({ state }) => {
 const QuestionScreen = ({ state, update, participantId }) => {
   const { currentQuestion, timerStart, timerDuration, questions } = state;
   const q = questions[currentQuestion-1];
-  const rem = useCountdown(timerStart, timerDuration);
+const rem = useCountdown(timerStart||null, timerDuration||300);
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const prevQ = useRef(currentQuestion);
@@ -734,7 +734,7 @@ const PresenterDashboard = ({ initialSessionId }) => {
     debateResponses, sessionName } = state;
 
   const rem = useCountdown(timerStart, timerDuration);
-  const debateRem = useCountdown(debateTimerStart, debateTimerDuration);
+ const debateRem = useCountdown(debateTimerStart||null, debateTimerDuration||120);
   const isProcessing = status==="processing";
   const isLive = status.startsWith("question");
 
