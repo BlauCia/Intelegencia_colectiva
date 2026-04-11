@@ -18,13 +18,15 @@ const makeDefault = (name = "Sesión 1") => ({
   resultsPublished: {},
   debateActive: false, debateQuestion: null, debateTimerStart: null, debateTimerDuration: 120,
   sessionName: name, sessionContext: "",
-  branding: {
-    sessionTitle: "Inteligencia Colectiva",
-    sessionSubtitle: "Plataforma de feedback formativo",
-    heroText: "¿Quién eres?",
-    accentColor: "#ffe600",
-    fontStyle: "condensed", // condensed | serif | sans | mono
-  },
+branding: {
+  sessionTitle: "Inteligencia Colectiva",
+  sessionSubtitle: "Plataforma de feedback formativo",
+  heroText: "¿Quién eres?",
+  accentColor: "#ffe600",
+  fontStyle: "condensed",
+  logoUrl: "/logo.jpg",
+  logoMaxHeight: 48,
+},
   anonymityMessage: "Tus respuestas son completamente anónimas.",
   aiConfig: { provider: "claude", claudeKey: "", openaiKey: "", geminiKey: "" },
   presenterPassword: "1234",
@@ -432,6 +434,11 @@ const RoleSelector = ({ onSelect }) => {
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem" }}>
         <div style={{ marginBottom: "3rem", textAlign: "center" }}>
+          {branding.logoUrl && (
+  <img src={branding.logoUrl} alt="Logo"
+    style={{ maxHeight: `${branding.logoMaxHeight || 48}px`, maxWidth: 220, objectFit: "contain", marginBottom: "1.25rem" }}
+    onError={e => { e.target.style.display = "none"; }} />
+)}
           <div style={{ fontSize: ".65rem", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", color: accent, marginBottom: "1rem" }}>{branding.sessionSubtitle}</div>
           <h1 className="fu" style={{ fontFamily: font.family, fontSize: "clamp(3rem,8vw,6rem)", fontWeight: font.weight, textTransform: font.transform, lineHeight: .88, letterSpacing: font.letterSpacing, color: "var(--white)" }}>
             {(branding.heroText || "¿Quién eres?").split("\n").map((line, i, arr) => (
@@ -1111,7 +1118,8 @@ const SessionsTab = ({ state, update, sessionId, onSessionChange }) => {
   );
 };
 
-// ─── GENERAL TAB ──────────────────────────────────────────────────────────────
+// ─── GENERAL TAB v2 con logo configurable ────────────────────────────────────
+
 const GeneralTab = ({ state, update }) => {
   const b = state.branding || makeDefault().branding;
   const [title, setTitle] = useState(b.sessionTitle || "Inteligencia Colectiva");
@@ -1119,47 +1127,109 @@ const GeneralTab = ({ state, update }) => {
   const [hero, setHero] = useState(b.heroText || "¿Quién eres?");
   const [accent, setAccent] = useState(b.accentColor || "#ffe600");
   const [fontStyle, setFontStyle] = useState(b.fontStyle || "condensed");
+  const [logoUrl, setLogoUrl] = useState(b.logoUrl || "");
+  const [logoMaxHeight, setLogoMaxHeight] = useState(b.logoMaxHeight || 48);
   const [anon, setAnon] = useState(state.anonymityMessage || "");
   const [timer, setTimer] = useState(state.timerDuration || 300);
   const [saved, setSaved] = useState(false);
 
   const save = async () => {
     await update({
-      branding: { sessionTitle: title, sessionSubtitle: subtitle, heroText: hero, accentColor: accent, fontStyle },
+      branding: {
+        sessionTitle: title,
+        sessionSubtitle: subtitle,
+        heroText: hero,
+        accentColor: accent,
+        fontStyle,
+        logoUrl,
+        logoMaxHeight: parseInt(logoMaxHeight) || 48,
+      },
       anonymityMessage: anon,
       timerDuration: timer,
     });
-    setSaved(true); setTimeout(() => setSaved(false), 2000);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
 
   const font = FONTS[fontStyle] || FONTS.condensed;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+
+      {/* Portada */}
       <div className="card">
         <div className="sl">Portada</div>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+
+          {/* Logo */}
+          <div>
+            <label className="fl">Logo</label>
+            <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+              {/* Preview */}
+              <div style={{ width: 120, height: 72, background: "var(--dark3)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: ".5rem" }}>
+                {logoUrl ? (
+                  <img src={logoUrl} alt="Logo preview"
+                    style={{ maxWidth: "100%", maxHeight: `${Math.min(logoMaxHeight, 60)}px`, objectFit: "contain" }}
+                    onError={e => { e.target.style.display = "none"; }}
+                  />
+                ) : (
+                  <span style={{ fontSize: ".65rem", color: "var(--gray)", textAlign: "center", lineHeight: 1.4 }}>Sin logo</span>
+                )}
+              </div>
+              {/* Controls */}
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: ".5rem" }}>
+                <input value={logoUrl} onChange={e => setLogoUrl(e.target.value)}
+                  className="fi" placeholder="/logo.jpg o https://tu-dominio.com/logo.png" />
+                <div style={{ fontSize: ".65rem", color: "var(--gray)", lineHeight: 1.5 }}>
+                  Sube el archivo a la carpeta <code style={{ color: "var(--accent)" }}>public/</code> del proyecto y escribe aquí <code style={{ color: "var(--accent)" }}>/nombre-archivo.jpg</code>
+                  <br />También puedes pegar una URL externa.
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
+                  <label className="fl" style={{ margin: 0, whiteSpace: "nowrap" }}>Altura máx.</label>
+                  <input type="number" value={logoMaxHeight} onChange={e => setLogoMaxHeight(e.target.value)}
+                    className="fi" style={{ width: 80 }} min={24} max={120} />
+                  <span style={{ fontSize: ".72rem", color: "var(--gray)" }}>px</span>
+                  <input type="range" min={24} max={120} value={logoMaxHeight}
+                    onChange={e => setLogoMaxHeight(e.target.value)}
+                    style={{ flex: 1, accentColor: accent }} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Title */}
           <div>
             <label className="fl">Título principal</label>
             <input value={title} onChange={e => setTitle(e.target.value)} className="fi" />
           </div>
+
+          {/* Subtitle */}
           <div>
             <label className="fl">Subtítulo</label>
             <input value={subtitle} onChange={e => setSubtitle(e.target.value)} className="fi" />
           </div>
+
+          {/* Hero text */}
           <div>
-            <label className="fl">Texto hero (última línea en color)</label>
+            <label className="fl">Texto hero (última línea en color de acento)</label>
             <input value={hero} onChange={e => setHero(e.target.value)} className="fi" />
-            <div style={{ fontSize: ".65rem", color: "var(--gray)", marginTop: ".35rem" }}>Usa saltos de línea con \n para dividir el texto. La última línea aparece en el color de acento.</div>
+            <div style={{ fontSize: ".65rem", color: "var(--gray)", marginTop: ".35rem" }}>
+              Usa \n para dividir en varias líneas. La última línea aparece en color de acento.
+            </div>
           </div>
+
+          {/* Accent color */}
           <div>
             <label className="fl">Color de acento (solo portada)</label>
             <div style={{ display: "flex", gap: ".75rem", alignItems: "center" }}>
               <input type="color" value={accent} onChange={e => setAccent(e.target.value)}
                 style={{ width: 48, height: 40, border: "1px solid var(--border)", background: "none", cursor: "pointer", padding: 2 }} />
-              <input value={accent} onChange={e => setAccent(e.target.value)} className="fi" style={{ flex: 1 }} placeholder="#ffe600" />
+              <input value={accent} onChange={e => setAccent(e.target.value)}
+                className="fi" style={{ flex: 1 }} placeholder="#ffe600" />
             </div>
           </div>
+
+          {/* Font */}
           <div>
             <label className="fl">Tipografía hero (solo portada)</label>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: ".75rem" }}>
@@ -1175,17 +1245,29 @@ const GeneralTab = ({ state, update }) => {
           </div>
 
           {/* Live preview */}
-          <div style={{ background: "var(--black)", border: "1px solid var(--border)", padding: "2rem", textAlign: "center" }}>
-            <div style={{ fontSize: ".6rem", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", color: accent, marginBottom: ".75rem" }}>{subtitle}</div>
-            <div style={{ fontFamily: font.family, fontSize: "clamp(2rem,5vw,3.5rem)", fontWeight: font.weight, textTransform: font.transform, lineHeight: .9, letterSpacing: font.letterSpacing }}>
-              {(hero || "¿Quién eres?").split("\n").map((line, i, arr) => (
-                <span key={i}>{i === arr.length - 1 ? <span style={{ color: accent }}>{line}</span> : <>{line}<br /></>}</span>
-              ))}
+          <div>
+            <label className="fl">Preview portada</label>
+            <div style={{ background: "var(--black)", border: "1px solid var(--border)", padding: "2rem", textAlign: "center" }}>
+              {logoUrl && (
+                <div style={{ marginBottom: "1rem" }}>
+                  <img src={logoUrl} alt="Logo"
+                    style={{ maxHeight: `${Math.min(parseInt(logoMaxHeight) || 48, 60)}px`, maxWidth: "100%", objectFit: "contain" }}
+                    onError={e => { e.target.style.display = "none"; }} />
+                </div>
+              )}
+              <div style={{ fontSize: ".6rem", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", color: accent, marginBottom: ".75rem" }}>{subtitle}</div>
+              <div style={{ fontFamily: font.family, fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: font.weight, textTransform: font.transform, lineHeight: .9, letterSpacing: font.letterSpacing }}>
+                {(hero || "¿Quién eres?").split("\\n").map((line, i, arr) => (
+                  <span key={i}>{i === arr.length - 1 ? <span style={{ color: accent }}>{line}</span> : <>{line}<br /></>}</span>
+                ))}
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 
+      {/* Sesión */}
       <div className="card">
         <div className="sl">Sesión</div>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -1214,6 +1296,7 @@ const GeneralTab = ({ state, update }) => {
     </div>
   );
 };
+
 
 // ─── AI TAB ───────────────────────────────────────────────────────────────────
 const AITab = ({ state, update }) => {
