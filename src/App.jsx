@@ -51,7 +51,7 @@ const useSession = (sessionId) => {
 
 const listSessions = () =>
   getDocs(query(collection(db, SESSIONS_COL), orderBy("createdAt", "desc")))
-    .then(s => s.docs.map(d => ({ id: d.id, ...d.data() })));
+    .then(s => s.docs.map(d => ({ id: d.id, ...d.data() })).filter(s => !s.hidden));
 
 const createSession = async (name, copyFrom = null) => {
   const id = `session_${Date.now()}`;
@@ -933,9 +933,19 @@ const SessionsTab = ({ state, update, sessionId, onSessionChange }) => {
   const [editingKw, setEditingKw] = useState(null);
   const [kwDraft, setKwDraft] = useState("");
   const [savedQ, setSavedQ] = useState(false);
+  const [detailSession, setDetailSession] = useState(null);
   const MAX_Q = 5;
 
   useEffect(() => { listSessions().then(s => { setSessions(s); setLoadingSess(false); }); }, []);
+
+  const hideSession = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm("¿Ocultar esta sesión? No se borran los datos.")) return;
+    await updateDoc(sessionRef(id), { hidden: true });
+    const updated = await listSessions();
+    setSessions(updated);
+    if (id === sessionId && updated.length > 0) onSessionChange(updated[0].id);
+  };
 
   const saveQ = async () => { await update({ questions }); setSavedQ(true); setTimeout(() => setSavedQ(false), 2000); };
 
@@ -968,6 +978,55 @@ const SessionsTab = ({ state, update, sessionId, onSessionChange }) => {
     listSessions().then(setSessions); onSessionChange(id);
   };
 
+  if (detailSession) {
+    const qs = detailSession.questions || [];
+    const isActive = detailSession.id === sessionId;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <button className="btn bg bsm" onClick={() => setDetailSession(null)}>← Volver</button>
+          <span style={{ fontSize: ".7rem", color: "var(--gray)", textTransform: "uppercase", letterSpacing: ".08em" }}>Detalle de sesión</span>
+        </div>
+        <div className="card">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.25rem" }}>
+            <div>
+              <div className="bc" style={{ fontSize: "1.5rem", fontWeight: 900, textTransform: "uppercase" }}>{detailSession.sessionName || detailSession.id}</div>
+              <div style={{ fontSize: ".7rem", color: "var(--gray)", display: "flex", gap: "1rem", marginTop: ".35rem" }}>
+                <span>{fmtDate(detailSession.createdAt)}</span>
+                <span>{Object.keys(detailSession.participants || {}).length} participantes</span>
+                <span>{Object.values(detailSession.responses || {}).reduce((a, r) => a + Object.keys(r).length, 0)} respuestas</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: ".5rem", alignItems: "center" }}>
+              <span style={{ fontSize: ".62rem", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: detailSession.status === "results" ? "var(--green)" : detailSession.status === "waiting" ? "var(--gray)" : "var(--accent)" }}>
+                {detailSession.status === "results" ? "Completada" : detailSession.status === "waiting" ? "En espera" : "Activa"}
+              </span>
+              {!isActive && (
+                <button className="btn by bsm" onClick={() => { onSessionChange(detailSession.id); setDetailSession(null); }}>Activar</button>
+              )}
+            </div>
+          </div>
+          <div className="sl">Preguntas ({qs.length})</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1px", background: "var(--border)" }}>
+            {qs.map((q, i) => (
+              <div key={i} style={{ background: "var(--dark2)", padding: "1rem 1.25rem" }}>
+                <div style={{ fontSize: ".6rem", fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--accent)", marginBottom: ".3rem" }}>Pregunta {i + 1}</div>
+                <div style={{ fontSize: ".88rem", fontWeight: 600, marginBottom: ".5rem" }}>{q.text || <span style={{ color: "var(--gray)" }}>Sin texto</span>}</div>
+                {q.keywords?.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: ".25rem" }}>
+                    {q.keywords.map((kw, j) => (
+                      <span key={j} style={{ fontSize: ".62rem", padding: ".18rem .45rem", background: "var(--yd)", border: "1px solid var(--yb)", color: "var(--accent)", textTransform: "uppercase", letterSpacing: ".04em" }}>{kw}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       {/* Session list */}
@@ -980,7 +1039,7 @@ const SessionsTab = ({ state, update, sessionId, onSessionChange }) => {
         {loadingSess ? <div style={{ textAlign: "center", padding: "1rem" }}><Spinner /></div> : (
           <div style={{ display: "flex", flexDirection: "column", gap: "1px", background: "var(--border)" }}>
             {sessions.map(s => (
-              <div key={s.id} className={`sc ${s.id === sessionId ? "act" : ""}`} onClick={() => onSessionChange(s.id)}>
+              <div key={s.id} className={`sc ${s.id === sessionId ? "act" : ""}`} onClick={() => setDetailSession(s)} style={{ cursor: "pointer" }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 700, fontSize: ".88rem", marginBottom: ".2rem" }}>{s.sessionName || s.id}</div>
                   <div style={{ fontSize: ".7rem", color: "var(--gray)", display: "flex", gap: "1rem" }}>
@@ -992,6 +1051,10 @@ const SessionsTab = ({ state, update, sessionId, onSessionChange }) => {
                 <span style={{ fontSize: ".62rem", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: s.status === "results" ? "var(--green)" : s.status === "waiting" ? "var(--gray)" : "var(--accent)" }}>
                   {s.status === "results" ? "Completada" : s.status === "waiting" ? "En espera" : "Activa"}
                 </span>
+                <button onClick={e => hideSession(e, s.id)} title="Ocultar sesión"
+                  style={{ marginLeft: ".75rem", background: "none", border: "none", color: "var(--gray)", fontSize: ".85rem", padding: ".2rem .4rem", lineHeight: 1 }}
+                  onMouseEnter={e => e.currentTarget.style.color = "var(--red)"}
+                  onMouseLeave={e => e.currentTarget.style.color = "var(--gray)"}>✕</button>
               </div>
             ))}
           </div>
