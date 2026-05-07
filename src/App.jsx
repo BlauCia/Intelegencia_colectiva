@@ -200,12 +200,16 @@ const fmtDate = ts => ts ? new Date(ts).toLocaleDateString("es-ES", { day: "2-di
 
 const STOP = new Set(["que","de","la","el","en","y","a","los","las","un","una","por","con","es","se","me","lo","le","más","pero","como","su","para","al","del","ha","he","mi","no","si","ya","muy","todo","este","esta","son","sus","fue","era","ser","hay","nos","les","esto","cuando","donde","porque","aunque","también","bien"]);
 
-const calcWordFreq = responses => {
+const calcWordFreq = (responses, questions = []) => {
+  const keywords = new Set(
+    questions.flatMap(q => (q.keywords || []).map(k => k.toLowerCase()))
+  );
   const freq = {};
   Object.values(responses).forEach(r => Object.values(r).forEach(text => {
     if (!text || typeof text !== "string") return;
     text.toLowerCase().replace(/[^a-záéíóúüñ\s]/gi, "").split(/\s+/).forEach(w => {
-      if (w.length > 3 && !STOP.has(w)) freq[w] = (freq[w] || 0) + 1;
+      if (keywords.size > 0 ? keywords.has(w) : (w.length > 3 && !STOP.has(w)))
+        freq[w] = (freq[w] || 0) + 1;
     });
   }));
   return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 50).map(([word, count]) => ({ word, count }));
@@ -269,7 +273,7 @@ const runAnalysis = async (state, qNum, sessionId) => {
   await callAI(`Eres analista de formación. ${prompt}\nSin asteriscos ni markdown.`,
     `Respuestas:\n\n${texts.join("\n---\n")}`,
     async chunk => { summary += chunk; await updateDoc(ref, { [`streamingText.${qKey}`]: summary }); }, aiConfig);
-  await updateDoc(ref, { [`analysis.${qKey}`]: summary, [`streamingText.${qKey}`]: "", wordFrequency: calcWordFreq(responses) });
+  await updateDoc(ref, { [`analysis.${qKey}`]: summary, [`streamingText.${qKey}`]: "", wordFrequency: calcWordFreq(responses, questions) });
   const enriched = await callAIJSON("Analista de feedback. SOLO JSON.",
     `JSON: {"sentiment":{"positive":N,"neutral":N,"critical":N},"highlights":["f1","f2","f3"]}\nFrases literales (máx 10 palabras).\nRespuestas:\n\n${texts.join("\n---\n")}`, aiConfig);
   if (enriched) await updateDoc(ref, { [`sentiment.${qKey}`]: enriched.sentiment, [`highlights.${qKey}`]: enriched.highlights || [] });
