@@ -1536,8 +1536,12 @@ const ParticipantApp = ({ sessionId }) => {
 
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [role, setRole] = useState(null);
-  const [sessionId, setSessionId] = useState(null);
+  const params = new URLSearchParams(window.location.search);
+  const urlRole = params.get("role");
+  const urlSession = params.get("session");
+
+  const [role, setRole] = useState(urlRole === "participant" ? "participant" : null);
+  const [sessionId, setSessionId] = useState(urlRole === "participant" && urlSession ? urlSession : null);
 
   const handleRole = async r => {
     setRole(r);
