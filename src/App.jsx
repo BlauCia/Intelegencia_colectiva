@@ -428,9 +428,8 @@ const RoleSelector = ({ onSelect }) => {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--black)" }}>
       <style>{`:root { --accent: ${accent}; --yd: ${accent}22; --yb: ${accent}55; }`}</style>
-      <div style={{ borderBottom: "1px solid var(--border)", padding: "1.1rem 2rem", display: "flex", alignItems: "center", gap: ".75rem" }}>
-        <div style={{ width: 7, height: 7, background: accent }} />
-        <span className="bc" style={{ fontSize: "1rem", fontWeight: 900, letterSpacing: ".06em", textTransform: "uppercase" }}>{branding.sessionTitle}</span>
+      <div style={{ borderBottom: "1px solid var(--border)", padding: "1.1rem 2rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span className="bc" style={{ fontSize: "1.4rem", fontWeight: 900, letterSpacing: ".1em", textTransform: "uppercase" }}>{branding.sessionTitle}</span>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem" }}>
         <div style={{ marginBottom: "3rem", textAlign: "center" }}>
