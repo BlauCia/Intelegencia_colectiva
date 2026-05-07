@@ -723,7 +723,7 @@ const PresenterDashboard = ({ initialSessionId }) => {
   return (
     <div style={{ minHeight: "100vh", background: "var(--black)", display: "flex", flexDirection: "column" }}>
       <div style={{ borderBottom: "1px solid var(--border)", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 100, flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", paddingLeft: "5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", paddingLeft: "160px" }}>
           <div style={{ width: 6, height: 6, background: "var(--accent)" }} />
           <span className="bc" style={{ fontSize: "1.6rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: ".1em" }}>{state.branding?.sessionTitle || "Inteligencia Colectiva"}</span>
           <span style={{ fontSize: ".62rem", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--gray2)", borderLeft: "1px solid var(--border)", paddingLeft: "1rem" }}>{sessionName}</span>
