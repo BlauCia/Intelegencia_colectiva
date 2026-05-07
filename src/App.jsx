@@ -744,7 +744,7 @@ const PresenterDashboard = ({ initialSessionId }) => {
       </div>
 
       <div style={{ display: "flex", borderBottom: "1px solid var(--border)", flexShrink: 0, padding: "0 1.5rem" }}>
-        {[["control", "Control"], ["analysis", "Análisis"], ["wordcloud", "Nube"]].map(([id, label]) => (
+        {[["control", "Control"], ["analysis", "Análisis"]].map(([id, label]) => (
           <button key={id} className={`tab ${tab === id ? "on" : ""}`} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -793,14 +793,7 @@ const PresenterDashboard = ({ initialSessionId }) => {
                     <div style={{ fontSize: ".62rem", color: "var(--gray2)", marginBottom: suggestion ? ".6rem" : 0 }}>
                       {Object.values(responses || {}).filter(r => r?.[qKey]).length} respuestas
                     </div>
-                    {suggestion && !usingSugg[qKey] && (
-                      <div style={{ background: "var(--yd)", border: "1px solid var(--yb)", padding: ".55rem", marginTop: ".4rem" }}>
-                        <div style={{ fontSize: ".58rem", fontWeight: 700, color: "var(--accent)", letterSpacing: ".08em", textTransform: "uppercase", marginBottom: ".25rem" }}>✦ IA sugiere</div>
-                        <p style={{ fontSize: ".72rem", lineHeight: 1.4, marginBottom: ".35rem", color: "rgba(255,255,255,.7)" }}>{suggestion}</p>
-                        <button onClick={() => { const qs = [...(questions || [])]; qs[qNum - 1] = { ...qs[qNum - 1], text: suggestion }; update({ questions: qs }); setUsingSugg({ ...usingSugg, [qKey]: true }); }}
-                          style={{ fontSize: ".6rem", fontWeight: 700, color: "var(--accent)", background: "none", border: "1px solid var(--yb)", padding: ".18rem .45rem", letterSpacing: ".06em", textTransform: "uppercase" }}>Adoptar</button>
-                      </div>
-                    )}
+                    {suggestion && !usingSugg[qKey] && null}
                     {done && (
                       <div style={{ marginTop: ".5rem", display: "flex", gap: ".3rem" }}>
                         <button onClick={() => togglePublish(qNum)} style={{ flex: 1, fontSize: ".6rem", padding: ".3rem", border: "1px solid", fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer", borderColor: resultsPublished?.[qKey] ? "var(--green)" : "var(--border2)", background: resultsPublished?.[qKey] ? "rgba(42,230,122,.08)" : "transparent", color: resultsPublished?.[qKey] ? "var(--green)" : "var(--gray)" }}>
@@ -829,12 +822,6 @@ const PresenterDashboard = ({ initialSessionId }) => {
               </div>
             )}
 
-            {wordFrequency?.length > 0 && (
-              <div className="card">
-                <div className="sl">Nube en tiempo real</div>
-                <WordCloud words={wordFrequency} />
-              </div>
-            )}
 
             {status === "results" && <ResultsDisplay state={state} compact />}
           </div>
@@ -877,12 +864,6 @@ const PresenterDashboard = ({ initialSessionId }) => {
           </div>
         )}
 
-        {tab === "wordcloud" && (
-          <div className="card">
-            <div className="sl">Nube de palabras en tiempo real</div>
-            <WordCloud words={wordFrequency} />
-          </div>
-        )}
       </div>
     </div>
   );
