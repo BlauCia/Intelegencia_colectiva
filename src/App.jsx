@@ -428,7 +428,7 @@ const RoleSelector = ({ onSelect }) => {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--black)" }}>
       <style>{`:root { --accent: ${accent}; --yd: ${accent}22; --yb: ${accent}55; }`}</style>
-      <div style={{ borderBottom: "1px solid var(--border)", padding: "1.1rem 2rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ borderBottom: "1px solid var(--border)", height: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <span className="bc" style={{ fontSize: "1.4rem", fontWeight: 900, letterSpacing: ".1em", textTransform: "uppercase" }}>{branding.sessionTitle}</span>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem" }}>
@@ -483,7 +483,7 @@ const WaitingScreen = ({ state }) => {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--black)" }}>
       <style>{`:root{--accent:${accent};--yd:${accent}22;--yb:${accent}55}`}</style>
-      <div style={{ borderBottom: "1px solid var(--border)", padding: "1rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ borderBottom: "1px solid var(--border)", height: 80, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <span className="bc" style={{ fontSize: ".9rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: ".08em" }}>{branding.sessionTitle}</span>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem", textAlign: "center" }}>
@@ -722,7 +722,7 @@ const PresenterDashboard = ({ initialSessionId }) => {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--black)", display: "flex", flexDirection: "column" }}>
-      <div style={{ borderBottom: "1px solid var(--border)", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 50, flexShrink: 0 }}>
+      <div style={{ borderBottom: "1px solid var(--border)", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80, flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", paddingLeft: "5rem" }}>
           <div style={{ width: 6, height: 6, background: "var(--accent)" }} />
           <span className="bc" style={{ fontSize: ".95rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: ".06em" }}>{state.branding?.sessionTitle || "Inteligencia Colectiva"}</span>
@@ -897,7 +897,7 @@ const ConfigPanel = ({ initialSessionId }) => {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--black)", display: "flex", flexDirection: "column" }}>
-      <div style={{ borderBottom: "1px solid var(--border)", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 50, flexShrink: 0 }}>
+      <div style={{ borderBottom: "1px solid var(--border)", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80, flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <div style={{ width: 6, height: 6, background: "var(--accent)" }} />
           <span className="bc" style={{ fontSize: ".95rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: ".06em" }}>Configuración</span>
@@ -1548,8 +1548,8 @@ export default function App() {
   return (
     <>
       <style>{css}</style>
-      <div style={{ position: "fixed", top: ".75rem", left: "1rem", zIndex: 9999, pointerEvents: "none" }}>
-        <img src="/logo.jpg" alt="EY Studio+" style={{ height: 44, objectFit: "contain", display: "block" }} />
+      <div style={{ position: "fixed", top: ".5rem", left: "1rem", zIndex: 9999, pointerEvents: "none" }}>
+        <img src="/logo.jpg" alt="EY Studio+" style={{ height: 70, objectFit: "contain", display: "block" }} />
       </div>
       {!role && <RoleSelector onSelect={handleRole} />}
       {role === "presenter" && !sessionId && <LoadingScreen />}
