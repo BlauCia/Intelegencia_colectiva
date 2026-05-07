@@ -483,8 +483,7 @@ const WaitingScreen = ({ state }) => {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--black)" }}>
       <style>{`:root{--accent:${accent};--yd:${accent}22;--yb:${accent}55}`}</style>
-      <div style={{ borderBottom: "1px solid var(--border)", padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: ".75rem" }}>
-        <div style={{ width: 6, height: 6, background: accent }} />
+      <div style={{ borderBottom: "1px solid var(--border)", padding: "1rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <span className="bc" style={{ fontSize: ".9rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: ".08em" }}>{branding.sessionTitle}</span>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem", textAlign: "center" }}>
@@ -724,7 +723,7 @@ const PresenterDashboard = ({ initialSessionId }) => {
   return (
     <div style={{ minHeight: "100vh", background: "var(--black)", display: "flex", flexDirection: "column" }}>
       <div style={{ borderBottom: "1px solid var(--border)", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 50, flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", paddingLeft: "5rem" }}>
           <div style={{ width: 6, height: 6, background: "var(--accent)" }} />
           <span className="bc" style={{ fontSize: ".95rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: ".06em" }}>{state.branding?.sessionTitle || "Inteligencia Colectiva"}</span>
           <span style={{ fontSize: ".62rem", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "var(--gray2)", borderLeft: "1px solid var(--border)", paddingLeft: "1rem" }}>{sessionName}</span>
@@ -1550,7 +1549,7 @@ export default function App() {
     <>
       <style>{css}</style>
       <div style={{ position: "fixed", top: ".75rem", left: "1rem", zIndex: 9999, pointerEvents: "none" }}>
-        <img src="/logo.jpg" alt="EY Studio+" style={{ height: 90, objectFit: "contain", display: "block" }} />
+        <img src="/logo.jpg" alt="EY Studio+" style={{ height: 44, objectFit: "contain", display: "block" }} />
       </div>
       {!role && <RoleSelector onSelect={handleRole} />}
       {role === "presenter" && !sessionId && <LoadingScreen />}
