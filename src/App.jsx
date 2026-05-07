@@ -744,7 +744,7 @@ const PresenterDashboard = ({ initialSessionId }) => {
       </div>
 
       <div style={{ display: "flex", borderBottom: "1px solid var(--border)", flexShrink: 0, padding: "0 1.5rem" }}>
-        {[["control", "Control"], ["analysis", "Análisis"]].map(([id, label]) => (
+        {[["control", "Control"], ["analysis", "Análisis"], ["wordcloud", "Nube"]].map(([id, label]) => (
           <button key={id} className={`tab ${tab === id ? "on" : ""}`} onClick={() => setTab(id)}>{label}</button>
         ))}
       </div>
@@ -864,6 +864,12 @@ const PresenterDashboard = ({ initialSessionId }) => {
           </div>
         )}
 
+        {tab === "wordcloud" && (
+          <div className="card">
+            <div className="sl">Nube de palabras en tiempo real</div>
+            <WordCloud words={wordFrequency} />
+          </div>
+        )}
       </div>
     </div>
   );
