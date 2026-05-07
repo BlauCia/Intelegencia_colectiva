@@ -449,7 +449,7 @@ const RoleSelector = ({ onSelect }) => {
             { role: "participant",   label: "Participante",  sub: "Accede a las preguntas", pwd: false },
             { role: "presenter",     label: "Ponente",        sub: "Controla la sesión",     pwd: true  },
             { role: "configuracion", label: "Configuración",  sub: "Ajustes y sesiones",     pwd: true  },
-            { role: "historico",     label: "Histórico",      sub: "Resultados agregados",   pwd: false },
+            { role: "historico",     label: "Histórico",      sub: "Resultados agregados",   pwd: true  },
           ].map(({ role, label, sub, pwd }) => (
             <button key={role} className="role-btn"
               onClick={() => pwd ? setPwdFor(role) : onSelect(role)}
@@ -468,7 +468,7 @@ const RoleSelector = ({ onSelect }) => {
 
       {pwdFor && (
         <PasswordModal
-          title={pwdFor === "presenter" ? "Acceso ponente" : "Acceso configuración"}
+          title={pwdFor === "presenter" ? "Acceso ponente" : pwdFor === "historico" ? "Acceso histórico" : "Acceso configuración"}
           onSuccess={() => { const r = pwdFor; setPwdFor(null); onSelect(r); }}
           onCancel={() => setPwdFor(null)}
           checkFn={checkPwd(pwdFor)}
