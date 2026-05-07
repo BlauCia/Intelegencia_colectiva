@@ -1555,8 +1555,8 @@ export default function App() {
   return (
     <>
       <style>{css}</style>
-      <div style={{ position: "fixed", top: "1rem", left: "1.25rem", zIndex: 900, pointerEvents: "none" }}>
-        <img src="/logo.jpg" alt="EY Studio+" style={{ height: 36, objectFit: "contain" }} onError={e => { e.target.style.display = "none"; }} />
+      <div style={{ position: "fixed", top: ".75rem", left: "1rem", zIndex: 9999, pointerEvents: "none", background: "#fff", padding: "4px 8px" }}>
+        <img src="/logo.jpg" alt="EY Studio+" style={{ height: 32, objectFit: "contain", display: "block" }} />
       </div>
       {!role && <RoleSelector onSelect={handleRole} />}
       {role === "presenter" && !sessionId && <LoadingScreen />}
