@@ -433,11 +433,6 @@ const RoleSelector = ({ onSelect }) => {
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem" }}>
         <div style={{ marginBottom: "3rem", textAlign: "center" }}>
-          {branding.logoUrl && (
-  <img src={branding.logoUrl} alt="Logo"
-    style={{ maxHeight: `${branding.logoMaxHeight || 48}px`, maxWidth: 220, objectFit: "contain", marginBottom: "1.25rem" }}
-    onError={e => { e.target.style.display = "none"; }} />
-)}
           <div style={{ fontSize: ".65rem", fontWeight: 700, letterSpacing: ".2em", textTransform: "uppercase", color: accent, marginBottom: "1rem" }}>{branding.sessionSubtitle}</div>
           <h1 className="fu" style={{ fontFamily: font.family, fontSize: "clamp(3rem,8vw,6rem)", fontWeight: font.weight, textTransform: font.transform, lineHeight: .88, letterSpacing: font.letterSpacing, color: "var(--white)" }}>
             {(branding.heroText || "¿Quién eres?").split("\n").map((line, i, arr) => (
