@@ -823,7 +823,6 @@ const PresenterDashboard = ({ initialSessionId }) => {
             )}
 
 
-            {status === "results" && <ResultsDisplay state={state} compact />}
           </div>
         )}
 
