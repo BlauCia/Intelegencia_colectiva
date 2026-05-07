@@ -868,9 +868,22 @@ const PresenterDashboard = ({ initialSessionId }) => {
         )}
 
         {tab === "wordcloud" && (
-          <div className="card">
-            <div className="sl">Nube de palabras en tiempo real</div>
-            <WordCloud words={wordFrequency} />
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            {(questions || []).map((q, i) => {
+              const qKey = `q${i + 1}`;
+              const qResponses = {};
+              Object.entries(responses || {}).forEach(([pid, r]) => {
+                if (r?.[qKey]) qResponses[pid] = { [qKey]: r[qKey] };
+              });
+              const words = calcWordFreq(qResponses, [q]);
+              return (
+                <div key={i} className="card">
+                  <div className="sl">Pregunta {i + 1}</div>
+                  <p style={{ fontSize: ".8rem", fontWeight: 600, marginBottom: "1rem", color: "rgba(255,255,255,.7)" }}>{q.text}</p>
+                  <WordCloud words={words} />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
