@@ -1596,6 +1596,14 @@ export default function App() {
       const id = sessions.length === 0 ? await createSession("Sesión 1") : sessions[0].id;
       setSessionId(id);
     }
+    if (r === "participant") {
+      window.history.replaceState(null, '', '/?role=participant');
+    }
+  };
+
+  const handleParticipantSession = id => {
+    setSessionId(id);
+    window.history.replaceState(null, '', `/?role=participant&session=${id}`);
   };
 
   return (
@@ -1609,7 +1617,7 @@ export default function App() {
       {role === "presenter" && sessionId && <PresenterDashboard initialSessionId={sessionId} />}
       {role === "configuracion" && !sessionId && <LoadingScreen />}
       {role === "configuracion" && sessionId && <ConfigPanel initialSessionId={sessionId} />}
-      {role === "participant" && !sessionId && <SessionPicker onPick={setSessionId} />}
+      {role === "participant" && !sessionId && <SessionPicker onPick={handleParticipantSession} />}
       {role === "participant" && sessionId && <ParticipantApp sessionId={sessionId} />}
       {role === "historico" && <Historico />}
     </>
